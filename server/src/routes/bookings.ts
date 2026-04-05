@@ -4,6 +4,8 @@ import Booking from '../models/Booking';
 import { protect } from '../middleware/auth';
 import { adminOnly } from '../middleware/admin';
 import { AuthRequest } from '../middleware/auth';
+import upload from '../middleware/upload';
+import { createBooking } from '../controllers/bookingController';
 
 const router = express.Router();
 
@@ -44,5 +46,8 @@ router.get('/pending-count',protect, adminOnly, async(req: AuthRequest, res: Res
         res.status(500).json({message: 'Server error'});
     }
 });
+
+// POST /api/bookings - Create a new booking
+router.post('/', protect, upload.single('approvalImageUrl'), createBooking);
 
 export default router;

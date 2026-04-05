@@ -17,7 +17,6 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings',bookingRoutes);
 app.use('/uploads', express.static('uploads'));
-
 // Test route
 app.get('/', (req, res) => {
   res.json({ message: 'Campus Resource API is running' });
