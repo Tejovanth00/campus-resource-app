@@ -5,6 +5,8 @@ import cors from 'cors';
 import authRoutes from './routes/auth';
 import resourceRoutes from './routes/resources';
 import labRoutes from './routes/labs';
+import bookingRoutes from './routes/bookings';
+
 dotenv.config();
 
 const app: Application = express();
@@ -15,6 +17,7 @@ const MONGO_URI = process.env.MONGO_URI as string;
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/bookings',bookingRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/resources', resourceRoutes);
 app.use('/api/labs', labRoutes);
