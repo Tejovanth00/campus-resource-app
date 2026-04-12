@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth';
-
+import resourceRoutes from './routes/resources';
+import labRoutes from './routes/labs';
 dotenv.config();
 
 const app: Application = express();
@@ -15,6 +16,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/uploads', express.static('uploads'));
+app.use('/api/resources', resourceRoutes);
+app.use('/api/labs', labRoutes);
 
 // Test route
 app.get('/', (req, res) => {
