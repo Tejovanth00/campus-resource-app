@@ -94,7 +94,7 @@ export default function Register() {
               name="name"
               value={form.name}
               onChange={handleChange}
-              placeholder="Padhu Venkat"
+              placeholder="Padma Priya"
               required
               style={styles.input}
               onFocus={focusStyle}
