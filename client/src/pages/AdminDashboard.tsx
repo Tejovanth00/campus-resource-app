@@ -4,7 +4,7 @@
 //   GET  /api/bookings/all           → lists all pending bookings
 //   GET  /api/bookings/pending-count → badge count
 //   PATCH /api/bookings/:id/status   → approve or reject
-// Tej's Booking model fields used: resourceName, date, timeSlot, userId (populated name), approvalImage, status
+// Tej's Booking model fields used: resourceName, date, timeSlot, userId (populated name), approvalImageUrl, status
 // Does NOT touch Navbar (Sushma's) or PrivateRoute (Sushma's)
 
 import { useEffect, useState, useCallback } from 'react';
@@ -22,7 +22,7 @@ interface Booking {
   date: string;
   timeSlot: string;
   purpose: string;
-  approvalImage: string;
+  approvalImageUrl: string;
   status: 'pending' | 'approved' | 'rejected';
   userId: BookingUser;
 }
@@ -33,12 +33,11 @@ export default function AdminDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<string | null>(null); // bookingId being actioned
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<FilterTab>('pending');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // Fetch all bookings and pending count
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -47,7 +46,7 @@ export default function AdminDashboard() {
         api.get('/api/bookings/all'),
         api.get('/api/bookings/pending-count'),
       ]);
-      setBookings(bookingsRes.data);
+      setBookings(bookingsRes.data.bookings);
       setPendingCount(countRes.data.count);
     } catch {
       setError('Failed to load bookings. Make sure you are logged in as admin.');
@@ -60,12 +59,10 @@ export default function AdminDashboard() {
     fetchData();
   }, [fetchData]);
 
-  // Approve or reject a booking
   const handleAction = async (id: string, status: 'approved' | 'rejected') => {
     setActionLoading(id);
     try {
       await api.patch(`/api/bookings/${id}/status`, { status });
-      // Optimistically update UI
       setBookings(prev =>
         prev.map(b => (b._id === id ? { ...b, status } : b))
       );
@@ -86,169 +83,171 @@ export default function AdminDashboard() {
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  // Image URL: Tej serves uploads as static at /uploads
   const getImageUrl = (path: string) => {
     const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    // path stored as something like "uploads/filename.jpg"
     return `${base}/${path}`;
   };
 
   return (
     <div style={styles.page}>
-      {/* Header */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Admin Dashboard</h1>
-          <p style={styles.subtitle}>Review and manage hall booking requests</p>
-        </div>
-        {/* Pending badge — also shown here for quick reference */}
-        {pendingCount > 0 && (
-          <div style={styles.badgeBlock}>
+      {/* Green blob top-right, same as Login/Register */}
+      <div style={styles.bgBlob} />
+
+      <div style={styles.inner}>
+        {/* Header */}
+        <div style={styles.header}>
+          <div>
+            <h1 style={styles.title}>Admin Dashboard</h1>
+            <p style={styles.subtitle}>Review and manage hall booking requests</p>
+          </div>
+          {pendingCount > 0 && (
             <div style={styles.badgePill}>
               <span style={styles.badgeDot} />
               {pendingCount} pending
             </div>
+          )}
+        </div>
+
+        {/* Filter tabs */}
+        <div style={styles.tabs}>
+          {(['pending', 'approved', 'rejected', 'all'] as FilterTab[]).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              style={{
+                ...styles.tab,
+                ...(filter === tab ? styles.tabActive : {}),
+              }}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'pending' && pendingCount > 0 && (
+                <span style={styles.tabBadge}>{pendingCount}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Loading */}
+        {loading && (
+          <div style={styles.centerState}>
+            <div style={styles.loadingSpinner} />
+            <p style={styles.stateText}>Loading bookings...</p>
+          </div>
+        )}
+
+        {/* Error */}
+        {!loading && error && (
+          <div style={styles.errorBox}>
+            <span style={{ fontSize: '8px' }}>●</span>
+            {error}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && !error && filteredBookings.length === 0 && (
+          <div style={styles.centerState}>
+            <div style={styles.emptyIcon}>📋</div>
+            <p style={styles.stateText}>
+              No {filter === 'all' ? '' : filter} bookings found.
+            </p>
+          </div>
+        )}
+
+        {/* Booking cards grid */}
+        {!loading && !error && filteredBookings.length > 0 && (
+          <div style={styles.grid}>
+            {filteredBookings.map(booking => (
+              <div key={booking._id} style={styles.card}>
+                {/* Status strip */}
+                <div style={{
+                  ...styles.statusStrip,
+                  background:
+                    booking.status === 'approved' ? '#c2ed39' :
+                    booking.status === 'rejected' ? '#fee2e2' :
+                    '#fef9c3',
+                }}>
+                  <span style={{
+                    ...styles.statusLabel,
+                    color:
+                      booking.status === 'approved' ? '#2d4a00' :
+                      booking.status === 'rejected' ? '#dc2626' :
+                      '#854d0e',
+                  }}>
+                    {booking.status === 'approved' && '✓ '}
+                    {booking.status === 'rejected' && '✕ '}
+                    {booking.status === 'pending' && '◷ '}
+                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                  </span>
+                </div>
+
+                <div style={styles.cardBody}>
+                  <h3 style={styles.resourceName}>{booking.resourceName}</h3>
+                  <div style={styles.metaRow}>
+                    <span style={styles.metaItem}>
+                      <span style={styles.metaIcon}>👤</span>
+                      {booking.userId?.name || 'Unknown user'}
+                    </span>
+                    <span style={styles.metaDivider}>·</span>
+                    <span style={styles.metaItem}>
+                      <span style={styles.metaIcon}>📅</span>
+                      {formatDate(booking.date)}
+                    </span>
+                  </div>
+                  <div style={styles.metaRow}>
+                    <span style={styles.metaItem}>
+                      <span style={styles.metaIcon}>🕐</span>
+                      {booking.timeSlot}
+                    </span>
+                  </div>
+                  {booking.purpose && (
+                    <p style={styles.purpose}>"{booking.purpose}"</p>
+                  )}
+
+                  {booking.approvalImageUrl && (
+                    <div style={styles.imageContainer}>
+                      <p style={styles.imageLabel}>Approval form</p>
+                      <img
+                        src={getImageUrl(booking.approvalImageUrl)}
+                        alt="Approval form"
+                        style={styles.approvalThumb}
+                        onClick={() => setPreviewImage(getImageUrl(booking.approvalImageUrl))}
+                        title="Click to enlarge"
+                      />
+                    </div>
+                  )}
+
+                  {booking.status === 'pending' && (
+                    <div style={styles.actions}>
+                      <button
+                        onClick={() => handleAction(booking._id, 'approved')}
+                        disabled={actionLoading === booking._id}
+                        style={{
+                          ...styles.approveBtn,
+                          opacity: actionLoading === booking._id ? 0.6 : 1,
+                          cursor: actionLoading === booking._id ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {actionLoading === booking._id ? '...' : '✓ Approve'}
+                      </button>
+                      <button
+                        onClick={() => handleAction(booking._id, 'rejected')}
+                        disabled={actionLoading === booking._id}
+                        style={{
+                          ...styles.rejectBtn,
+                          opacity: actionLoading === booking._id ? 0.6 : 1,
+                          cursor: actionLoading === booking._id ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {actionLoading === booking._id ? '...' : '✕ Reject'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
-
-      {/* Filter tabs */}
-      <div style={styles.tabs}>
-        {(['pending', 'approved', 'rejected', 'all'] as FilterTab[]).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            style={{
-              ...styles.tab,
-              ...(filter === tab ? styles.tabActive : {}),
-            }}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            {tab === 'pending' && pendingCount > 0 && (
-              <span style={styles.tabBadge}>{pendingCount}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* States */}
-      {loading && (
-        <div style={styles.centerState}>
-          <div style={styles.loadingSpinner} />
-          <p style={styles.stateText}>Loading bookings...</p>
-        </div>
-      )}
-
-      {!loading && error && (
-        <div style={styles.errorBox}>{error}</div>
-      )}
-
-      {!loading && !error && filteredBookings.length === 0 && (
-        <div style={styles.centerState}>
-          <div style={styles.emptyIcon}>📋</div>
-          <p style={styles.stateText}>
-            No {filter === 'all' ? '' : filter} bookings found.
-          </p>
-        </div>
-      )}
-
-      {/* Booking cards */}
-      {!loading && !error && filteredBookings.length > 0 && (
-        <div style={styles.grid}>
-          {filteredBookings.map(booking => (
-            <div key={booking._id} style={styles.card}>
-              {/* Status strip */}
-              <div style={{
-                ...styles.statusStrip,
-                background:
-                  booking.status === 'approved' ? '#c2ed39' :
-                  booking.status === 'rejected' ? '#fee2e2' :
-                  '#fef9c3',
-              }}>
-                <span style={{
-                  ...styles.statusLabel,
-                  color:
-                    booking.status === 'approved' ? '#2d4a00' :
-                    booking.status === 'rejected' ? '#dc2626' :
-                    '#854d0e',
-                }}>
-                  {booking.status === 'approved' && '✓ '}
-                  {booking.status === 'rejected' && '✕ '}
-                  {booking.status === 'pending' && '◷ '}
-                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                </span>
-              </div>
-
-              <div style={styles.cardBody}>
-                {/* Resource & User info */}
-                <h3 style={styles.resourceName}>{booking.resourceName}</h3>
-                <div style={styles.metaRow}>
-                  <span style={styles.metaItem}>
-                    <span style={styles.metaIcon}>👤</span>
-                    {booking.userId?.name || 'Unknown user'}
-                  </span>
-                  <span style={styles.metaDivider}>·</span>
-                  <span style={styles.metaItem}>
-                    <span style={styles.metaIcon}>📅</span>
-                    {formatDate(booking.date)}
-                  </span>
-                </div>
-                <div style={styles.metaRow}>
-                  <span style={styles.metaItem}>
-                    <span style={styles.metaIcon}>🕐</span>
-                    {booking.timeSlot}
-                  </span>
-                </div>
-                {booking.purpose && (
-                  <p style={styles.purpose}>"{booking.purpose}"</p>
-                )}
-
-                {/* Approval image */}
-                {booking.approvalImage && (
-                  <div style={styles.imageContainer}>
-                    <p style={styles.imageLabel}>Approval form</p>
-                    <img
-                      src={getImageUrl(booking.approvalImage)}
-                      alt="Approval form"
-                      style={styles.approvalThumb}
-                      onClick={() => setPreviewImage(getImageUrl(booking.approvalImage))}
-                      title="Click to enlarge"
-                    />
-                  </div>
-                )}
-
-                {/* Actions — only for pending */}
-                {booking.status === 'pending' && (
-                  <div style={styles.actions}>
-                    <button
-                      onClick={() => handleAction(booking._id, 'approved')}
-                      disabled={actionLoading === booking._id}
-                      style={{
-                        ...styles.approveBtn,
-                        opacity: actionLoading === booking._id ? 0.6 : 1,
-                        cursor: actionLoading === booking._id ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      {actionLoading === booking._id ? '...' : '✓ Approve'}
-                    </button>
-                    <button
-                      onClick={() => handleAction(booking._id, 'rejected')}
-                      disabled={actionLoading === booking._id}
-                      style={{
-                        ...styles.rejectBtn,
-                        opacity: actionLoading === booking._id ? 0.6 : 1,
-                        cursor: actionLoading === booking._id ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      {actionLoading === booking._id ? '...' : '✕ Reject'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Image preview modal */}
       {previewImage && (
@@ -267,17 +266,34 @@ const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: '100vh',
     background: '#f9fafb',
-    padding: '32px 24px 60px',
     fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  bgBlob: {
+    position: 'fixed',
+    top: '-120px',
+    right: '-120px',
+    width: '420px',
+    height: '420px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(194,237,57,0.25) 0%, rgba(194,237,57,0) 70%)',
+    pointerEvents: 'none',
+    zIndex: 0,
+  },
+  inner: {
+    position: 'relative',
+    zIndex: 1,
     maxWidth: '1100px',
     margin: '0 auto',
+    padding: '36px 28px 60px',
   },
   header: {
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     marginBottom: '28px',
-    flexWrap: 'wrap',
+    flexWrap: 'wrap' as const,
     gap: '12px',
   },
   title: {
@@ -291,10 +307,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '14px',
     color: '#6b7280',
     margin: 0,
-  },
-  badgeBlock: {
-    display: 'flex',
-    alignItems: 'center',
   },
   badgePill: {
     background: '#c2ed39',
@@ -313,16 +325,15 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '50%',
     background: '#2d4a00',
     display: 'inline-block',
-    animation: 'pulse 1.5s ease-in-out infinite',
   },
   tabs: {
     display: 'flex',
     gap: '8px',
-    marginBottom: '24px',
-    flexWrap: 'wrap',
+    marginBottom: '28px',
+    flexWrap: 'wrap' as const,
   },
   tab: {
-    padding: '9px 18px',
+    padding: '9px 20px',
     borderRadius: '100px',
     border: '1.5px solid #e5e7eb',
     background: '#fff',
@@ -334,6 +345,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: '7px',
     transition: 'all 0.15s ease',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
   },
   tabActive: {
     background: '#111',
@@ -350,7 +362,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   centerState: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column' as const,
     alignItems: 'center',
     justifyContent: 'center',
     padding: '80px 0',
@@ -379,16 +391,19 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '16px 20px',
     fontSize: '14px',
     color: '#dc2626',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
     gap: '20px',
   },
   card: {
     background: '#fff',
-    borderRadius: '16px',
-    boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+    borderRadius: '20px',
+    boxShadow: '0 4px 32px rgba(0,0,0,0.08)',
     overflow: 'hidden',
     border: '1.5px solid #f0f0f0',
   },
@@ -398,11 +413,11 @@ const styles: Record<string, React.CSSProperties> = {
   statusLabel: {
     fontSize: '12px',
     fontWeight: 700,
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
   },
   cardBody: {
-    padding: '18px',
+    padding: '18px 20px',
   },
   resourceName: {
     fontSize: '17px',
@@ -416,7 +431,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: '6px',
     marginBottom: '5px',
-    flexWrap: 'wrap',
+    flexWrap: 'wrap' as const,
   },
   metaItem: {
     fontSize: '13px',
@@ -449,13 +464,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     color: '#6b7280',
     margin: '0 0 6px',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
   },
   approvalThumb: {
     width: '100%',
     height: '140px',
-    objectFit: 'cover',
+    objectFit: 'cover' as const,
     borderRadius: '10px',
     border: '1.5px solid #e5e7eb',
     cursor: 'zoom-in',
@@ -489,7 +504,6 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     transition: 'background 0.15s',
   },
-  // Modal for image preview
   modalOverlay: {
     position: 'fixed',
     inset: 0,
@@ -502,7 +516,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   modalBox: {
     background: '#fff',
-    borderRadius: '16px',
+    borderRadius: '20px',
     padding: '16px',
     maxWidth: '700px',
     width: '100%',
@@ -530,6 +544,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '10px',
     display: 'block',
     maxHeight: '80vh',
-    objectFit: 'contain',
+    objectFit: 'contain' as const,
   },
 };
