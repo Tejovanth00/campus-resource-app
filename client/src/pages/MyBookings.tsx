@@ -27,7 +27,7 @@ const MyBookings = () => {
       try {
         const res = await api.get('/api/bookings/my');
         setBookings(res.data.bookings);
-      } catch (err) {
+      } catch {
         setError('Failed to fetch bookings');
       } finally {
         setLoading(false);

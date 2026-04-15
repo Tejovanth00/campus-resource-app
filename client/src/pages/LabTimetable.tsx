@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '../api/axios';
 
 interface LabSlot {
@@ -19,18 +19,19 @@ const LabTimetable = () => {
   const [editSlot, setEditSlot] = useState<LabSlot | null>(null);
   const role = localStorage.getItem('role');
 
-  const fetchSlots = async () => {
+  const fetchSlots = useCallback(async () => {
     try {
       const res = await api.get(`/api/labs?lab=${selectedLab}`);
       setSlots(res.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [selectedLab]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSlots();
-  }, [selectedLab]);
+  }, [fetchSlots]);
 
   const handleUpdate = async (id: string, status: string, subject: string, faculty: string) => {
     try {
