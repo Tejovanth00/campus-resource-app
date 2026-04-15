@@ -8,6 +8,20 @@ const Navbar = () => {
   const name = sessionStorage.getItem('name');
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const adminLinks = [
+    { to: '/admin', label: 'Admin Dashboard' },
+  ];
+
+  const userLinks = [
+    { to: '/', label: 'Dashboard' },
+    { to: '/book', label: 'Book Resource' },
+    { to: '/resources', label: 'Resources' },
+    { to: '/labs', label: 'Lab Timetable' },
+    { to: '/my-bookings', label: 'My Bookings' },
+  ];
+
+  const navLinks = role === 'admin' ? adminLinks : userLinks;
+
   const handleLogout = () => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('role');
@@ -36,44 +50,15 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             {token ? (
               <>
-                <Link
-                  to="/"
-                  className="text-gray-300 hover:text-[#c2ed39] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/book"
-                  className="text-gray-300 hover:text-[#c2ed39] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Book Resource
-                </Link>
-                <Link
-                  to="/resources"
-                  className="text-gray-300 hover:text-[#c2ed39] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Resources
-                </Link>
-                <Link
-                  to="/labs"
-                  className="text-gray-300 hover:text-[#c2ed39] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Lab Timetable
-                </Link>
-                <Link
-                  to="/my-bookings"
-                  className="text-gray-300 hover:text-[#c2ed39] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  My Bookings
-                </Link>
-                {role === 'admin' && (
+                {navLinks.map((link) => (
                   <Link
-                    to="/admin"
+                    key={link.to}
+                    to={link.to}
                     className="text-gray-300 hover:text-[#c2ed39] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                   >
-                    Admin
+                    {link.label}
                   </Link>
-                )}
+                ))}
               </>
             ) : (
               <>
@@ -130,50 +115,16 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {token ? (
               <>
-                <Link
-                  to="/"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-gray-300 hover:text-[#c2ed39] block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/book"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-gray-300 hover:text-[#c2ed39] block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Book Resource
-                </Link>
-                <Link
-                  to="/resources"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-gray-300 hover:text-[#c2ed39] block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Resources
-                </Link>
-                <Link
-                  to="/labs"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-gray-300 hover:text-[#c2ed39] block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Lab Timetable
-                </Link>
-                <Link
-                  to="/my-bookings"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-gray-300 hover:text-[#c2ed39] block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  My Bookings
-                </Link>
-                {role === 'admin' && (
+                {navLinks.map((link) => (
                   <Link
-                    to="/admin"
+                    key={link.to}
+                    to={link.to}
                     onClick={() => setMenuOpen(false)}
                     className="text-gray-300 hover:text-[#c2ed39] block px-3 py-2 rounded-md text-base font-medium"
                   >
-                    Admin
+                    {link.label}
                   </Link>
-                )}
+                ))}
                 <div className="border-t border-gray-700 pt-4 mt-4">
                   <div className="flex items-center justify-between px-3">
                     <span className="text-gray-300 text-sm">Welcome, {name}</span>
