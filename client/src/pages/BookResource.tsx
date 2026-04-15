@@ -38,7 +38,7 @@ const BookResource = () => {
         setLoading(false);
         setSuccess(true);
     
-      } catch (error) {
+      } catch {
         setError('Something went wrong');
         setLoading(false);
       }

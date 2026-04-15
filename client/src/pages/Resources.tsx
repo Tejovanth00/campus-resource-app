@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '../api/axios';
 
 interface Resource {
@@ -13,7 +13,7 @@ const Resources = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [category, setCategory] = useState('all');
 
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     try {
       const url = category === 'all' ? '/api/resources' : `/api/resources?category=${category}`;
       const res = await api.get(url);
@@ -21,17 +21,18 @@ const Resources = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [category]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResources();
-  }, [category]);
+  }, [fetchResources]);
 
   const handleCheckout = async (id: string) => {
     try {
       await api.patch(`/api/resources/${id}/checkout`);
       fetchResources();
-    } catch (err) {
+    } catch {
       alert('Already checked out!');
     }
   };
