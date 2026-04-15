@@ -8,7 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
 export default function Login() {
-  const navigate = useNavigate();               
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -47,7 +47,6 @@ export default function Login() {
   };
 
   return (
-    <>
     <div style={styles.page}>
       {/* Background decoration */}
       <div style={styles.bgBlob} />
@@ -127,7 +126,7 @@ export default function Login() {
             ) : (
               'Sign in'
             )}
-          </button> 
+          </button>
         </form>
 
         <p style={styles.footerText}>
@@ -138,7 +137,6 @@ export default function Login() {
         </p>
       </div>
     </div>
-    </>
   );
 }
 

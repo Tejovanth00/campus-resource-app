@@ -6,6 +6,9 @@ import { adminOnly } from '../middleware/admin';
 import { AuthRequest } from '../middleware/auth';
 import upload from '../middleware/upload';
 import { createBooking } from '../controllers/bookingController';
+import { getMyBookings } from '../controllers/bookingController';
+import { getAllBookings } from '../controllers/bookingController';
+import { getBookingsByResource } from '../controllers/bookingController';
 
 const router = express.Router();
 
@@ -49,5 +52,11 @@ router.get('/pending-count',protect, adminOnly, async(req: AuthRequest, res: Res
 
 // POST /api/bookings - Create a new booking
 router.post('/', protect, upload.single('approvalImageUrl'), createBooking);
+// GET /api/bookings/my - get current user's bookings
+router.get('/my', protect, getMyBookings);
+// GET /api/bookings/all - get all bookings (admin only)
+router.get('/all', protect, adminOnly, getAllBookings);
+// GET /api/bookings/resource - get bookings by resource and date
+router.get('/resource', protect, getBookingsByResource);
 
 export default router;
