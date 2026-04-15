@@ -10,7 +10,7 @@ const api: AxiosInstance = axios.create({
 // Attach JWT token to every request automatically
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,9 +26,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid — clear it and redirect to login
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const token = sessionStorage.getItem('token');
+      if (token) {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('role');
+        sessionStorage.removeItem('name');
+        sessionStorage.removeItem('userType');
+      }
     }
     return Promise.reject(error);
   }

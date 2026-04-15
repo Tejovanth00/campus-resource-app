@@ -6,15 +6,18 @@ interface Props {
 }
 
 const PrivateRoute = ({ children, adminOnly = false }: Props) => {
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+  const token = sessionStorage.getItem('token');
+  const role = sessionStorage.getItem('role');
 
   if (!token) {
-    return <Navigate to="/login" />;
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('name');
+    sessionStorage.removeItem('userType');
+    return <Navigate to="/login" replace />;
   }
 
   if (adminOnly && role !== 'admin') {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

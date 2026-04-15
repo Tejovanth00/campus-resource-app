@@ -1,6 +1,6 @@
 // Padhu - Login Page
 // Uses Tej's shared axios instance from api/axios.ts
-// Saves JWT to localStorage, redirects to home on success
+// Saves JWT to sessionStorage, redirects to home on success
 // Routes handled by Sushma's App.tsx and PrivateRoute.tsx
 
 import { useState } from 'react';
@@ -26,18 +26,19 @@ export default function Login() {
 
     try {
       const res = await api.post('/api/auth/login', form);
-      const { token, role, userType } = res.data;
+      const { token, role, userType, name } = res.data;
 
-      // Save auth data to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
-      localStorage.setItem('userType', userType);
+      // Save auth data to sessionStorage so login ends when the browser/tab closes
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('role', role);
+      sessionStorage.setItem('userType', userType);
+      sessionStorage.setItem('name', name);
 
       // Redirect based on role
       if (role === 'admin') {
-        navigate('/admin');
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/');
+        navigate('/', { replace: true });
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -48,59 +49,61 @@ export default function Login() {
   };
 
   return (
-    <div style={styles.page}>
-      {/* Background decoration */}
-      <div style={styles.bgBlob} />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-[-80px] right-[-80px] h-72 w-72 rounded-full bg-[#c2ed39]/25 blur-3xl"></div>
+        <div className="absolute bottom-[-60px] left-[-60px] h-72 w-72 rounded-full bg-slate-900/10 blur-3xl"></div>
+      </div>
 
-      <div style={styles.card}>
-        {/* Logo / Brand */}
-        <div style={styles.brandRow}>
-          <div style={styles.logoCircle}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <polyline points="9 22 9 12 15 12 15 22" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <div className="relative z-10 w-full max-w-md rounded-[28px] border border-slate-200 bg-white px-8 py-10 shadow-2xl">
+        <div className="mb-8 flex items-center gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#c2ed39] text-slate-950">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span style={styles.brandName}>CampusRes</span>
+          <span className="text-lg font-semibold text-slate-900">CampusHub</span>
         </div>
 
-        <h1 style={styles.heading}>Welcome back</h1>
-        <p style={styles.subheading}>Sign in to manage campus resources</p>
+        <h1 className="text-3xl font-bold text-slate-900">Welcome back</h1>
+        <p className="mt-2 text-sm text-slate-600">Sign in to manage campus resources quickly and securely.</p>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Email address</label>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+              Email address
+            </label>
             <input
-              type="email"
+              id="email"
               name="email"
+              type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="you@college.edu"
               required
-              style={styles.input}
-              onFocus={e => (e.target.style.borderColor = '#c2ed39')}
-              onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
+              placeholder="you@college.edu"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
             />
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Password</label>
+          <div>
+            <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+              Password
+            </label>
             <input
-              type="password"
+              id="password"
               name="password"
+              type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="••••••••"
               required
-              style={styles.input}
-              onFocus={e => (e.target.style.borderColor = '#c2ed39')}
-              onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
+              placeholder="••••••••"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
             />
           </div>
 
           {error && (
-            <div style={styles.errorBox}>
-              <span style={styles.errorDot}>●</span>
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -108,31 +111,15 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              ...styles.submitBtn,
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-            onMouseEnter={e => {
-              if (!loading) (e.currentTarget.style.background = '#b0d930');
-            }}
-            onMouseLeave={e => {
-              if (!loading) (e.currentTarget.style.background = '#c2ed39');
-            }}
+            className="inline-flex w-full items-center justify-center rounded-2xl bg-[#c2ed39] px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#b0d930] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? (
-              <span style={styles.loadingRow}>
-                <span style={styles.spinner} /> Signing in...
-              </span>
-            ) : (
-              'Sign in'
-            )}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 
-        <p style={styles.footerText}>
-          Don't have an account?{' '}
-          <Link to="/register" style={styles.link}>
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="font-semibold text-slate-950 underline decoration-[#c2ed39]/70 underline-offset-4 hover:text-[#111]">
             Register here
           </Link>
         </p>

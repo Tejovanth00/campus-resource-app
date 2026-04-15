@@ -14,24 +14,67 @@ if (!MONGO_URI) {
 }
 
 const resources = [
+  // Equipment category
   {
     name: 'Projector 1',
-    category: 'projector',
+    category: 'equipment',
     available: true,
   },
   {
-    name: 'Basketball Court',
-    category: 'sports',
+    name: 'Projector 2',
+    category: 'equipment',
     available: true,
   },
   {
-    name: 'Hostel Common Room',
-    category: 'hostel',
+    name: 'Lecture Hall A',
+    category: 'equipment',
+    available: true,
+  },
+  {
+    name: 'Lecture Hall B',
+    category: 'equipment',
+    available: true,
+  },
+  {
+    name: 'Computer Lab 1',
+    category: 'equipment',
+    available: true,
+  },
+  {
+    name: 'Computer Lab 2',
+    category: 'equipment',
+    available: true,
+  },
+  // Approval-based category
+  {
+    name: 'Auditorium',
+    category: 'approval-based',
     available: true,
   },
   {
     name: 'Seminar Hall A',
-    category: 'hostel',
+    category: 'approval-based',
+    available: true,
+  },
+  {
+    name: 'Seminar Hall B',
+    category: 'approval-based',
+    available: true,
+  },
+  // Recreational category
+  {
+    name: 'Carrom Board',
+    category: 'recreational',
+    available: true,
+  },
+  {
+    name: 'Chess Set',
+    category: 'recreational',
+    available: true,
+  },
+  {
+    name: 'Shuttle Bat Set',
+    category: 'recreational',
     available: true,
   },
 ];
@@ -58,12 +101,12 @@ async function seed() {
     await mongoose.connect(MONGO_URI as string);
     console.log('MongoDB connected for seeding');
 
+    // Clear existing resources
+    await Resource.deleteMany({});
+    console.log('Cleared existing resources');
+
     for (const resource of resources) {
-      await Resource.findOneAndUpdate(
-        { name: resource.name },
-        { $set: resource },
-        { upsert: true, new: true }
-      );
+      await Resource.create(resource);
     }
 
     for (const user of users) {

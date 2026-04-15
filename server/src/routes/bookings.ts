@@ -50,6 +50,24 @@ router.get('/pending-count',protect, adminOnly, async(req: AuthRequest, res: Res
     }
 });
 
+// GET /api/bookings/stats - Get booking stats for current user
+router.get('/stats', protect, async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user?.userId;
+        const totalBookings = await Booking.countDocuments({ userId });
+        const pendingBookings = await Booking.countDocuments({ userId, status: 'pending' });
+        const approvedBookings = await Booking.countDocuments({ userId, status: 'approved' });
+
+        res.status(200).json({
+            totalBookings,
+            pendingBookings,
+            approvedBookings,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // POST /api/bookings - Create a new booking
 router.post('/', protect, upload.single('approvalImageUrl'), createBooking);
 // GET /api/bookings/my - get current user's bookings

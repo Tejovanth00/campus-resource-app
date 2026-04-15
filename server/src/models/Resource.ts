@@ -8,7 +8,7 @@ const resourceSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['projector', 'sports', 'hostel'],
+    enum: ['equipment', 'approval-based', 'recreational'],
     required: true,
   },
   available: {

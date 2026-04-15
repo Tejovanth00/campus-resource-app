@@ -24,7 +24,7 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
       date,
       timeSlot,
       purpose,
-      approvalImageUrl: req.file.path,
+      approvalImageUrl: req.file.filename,
       status: 'pending',
     });
 

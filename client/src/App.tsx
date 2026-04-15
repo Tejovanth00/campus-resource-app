@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -11,10 +11,14 @@ import Resources from './pages/Resources';
 import LabTimetable from './pages/LabTimetable';
 import AdminDashboard from './pages/AdminDashboard';
 
-const App = () => {
+const AppContent = () => {
+  const location = useLocation();
+  const token = sessionStorage.getItem('token');
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register';
+
   return (
-    <Router>
-      <Navbar />
+    <>
+      {!hideNavbar && token && <Navbar />}
       <Routes>
 
         {/* Public routes */}
@@ -44,8 +48,14 @@ const App = () => {
         } />
 
       </Routes>
-    </Router>
+    </>
   );
 };
+
+const App = () => (
+  <Router>
+    <AppContent />
+  </Router>
+);
 
 export default App;

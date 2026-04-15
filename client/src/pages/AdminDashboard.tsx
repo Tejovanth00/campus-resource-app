@@ -88,9 +88,9 @@ export default function AdminDashboard() {
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  const getImageUrl = (path: string) => {
+  const getImageUrl = (filename: string) => {
     const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    return `${base}/${path}`;
+    return `${base}/uploads/${filename}`;
   };
 
   return (

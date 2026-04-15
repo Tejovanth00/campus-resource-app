@@ -66,112 +66,112 @@ export default function Register() {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.bgBlob} />
-      <div style={styles.bgBlobBottom} />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-[-80px] right-[-80px] h-72 w-72 rounded-full bg-[#c2ed39]/20 blur-3xl"></div>
+        <div className="absolute bottom-[-60px] left-[-60px] h-72 w-72 rounded-full bg-slate-900/10 blur-3xl"></div>
+      </div>
 
-      <div style={styles.card}>
-        {/* Brand */}
-        <div style={styles.brandRow}>
-          <div style={styles.logoCircle}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <polyline points="9 22 9 12 15 12 15 22" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <div className="relative z-10 w-full max-w-2xl rounded-[28px] border border-slate-200 bg-white px-8 py-10 shadow-2xl">
+        <div className="mb-8 flex items-center gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#c2ed39] text-slate-950">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span style={styles.brandName}>CampusRes</span>
+          <span className="text-lg font-semibold text-slate-900">CampusHub</span>
         </div>
 
-        <h1 style={styles.heading}>Create account</h1>
-        <p style={styles.subheading}>Join to start booking campus resources</p>
+        <h1 className="text-3xl font-bold text-slate-900">Create account</h1>
+        <p className="mt-2 text-sm text-slate-600">Get started and book campus facilities with a single login.</p>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          {/* Name */}
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Full name</label>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div>
+            <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-2">
+              Full name
+            </label>
             <input
-              type="text"
+              id="name"
               name="name"
+              type="text"
               value={form.name}
               onChange={handleChange}
-              placeholder="Padma Priya"
               required
-              style={styles.input}
-              onFocus={focusStyle}
-              onBlur={blurStyle}
+              placeholder="Padma Priya"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
             />
           </div>
 
-          {/* Email */}
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Email address</label>
+          <div>
+            <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+              Email address
+            </label>
             <input
-              type="email"
+              id="email"
               name="email"
+              type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="you@college.edu"
               required
-              style={styles.input}
-              onFocus={focusStyle}
-              onBlur={blurStyle}
+              placeholder="you@college.edu"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
             />
           </div>
 
-          {/* Password */}
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Password</label>
+          <div>
+            <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+              Password
+            </label>
             <input
-              type="password"
+              id="password"
               name="password"
+              type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="••••••••"
               required
               minLength={6}
-              style={styles.input}
-              onFocus={focusStyle}
-              onBlur={blurStyle}
+              placeholder="••••••••"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
             />
           </div>
 
-          {/* Role + UserType - side by side */}
-          <div style={styles.twoCol}>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Role</label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="role" className="block text-sm font-semibold text-slate-700 mb-2">
+                Role
+              </label>
               <select
+                id="role"
                 name="role"
                 value={form.role}
                 onChange={handleChange}
                 required
-                style={{
-                  ...styles.input,
-                  color: form.role ? '#111' : '#9ca3af',
-                }}
-                onFocus={focusStyle}
-                onBlur={blurStyle}
+                className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
               >
-                <option value="" disabled>Select role</option>
+                <option value="" disabled>
+                  Select role
+                </option>
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>User type</label>
+            <div>
+              <label htmlFor="userType" className="block text-sm font-semibold text-slate-700 mb-2">
+                User type
+              </label>
               <select
+                id="userType"
                 name="userType"
                 value={form.userType}
                 onChange={handleChange}
                 required
-                style={{
-                  ...styles.input,
-                  color: form.userType ? '#111' : '#9ca3af',
-                }}
-                onFocus={focusStyle}
-                onBlur={blurStyle}
+                className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#c2ed39] focus:ring-2 focus:ring-[#c2ed39]/30"
               >
-                <option value="" disabled>Select type</option>
+                <option value="" disabled>
+                  Select type
+                </option>
                 <option value="faculty">Faculty</option>
                 <option value="classrep">Class Rep</option>
                 <option value="hosteller">Hosteller</option>
@@ -179,19 +179,15 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Role hint */}
-          <div style={styles.hintBox}>
-            <span style={styles.hintIcon}>ℹ</span>
-            <span>
-              <strong>Class Rep / Faculty</strong> can book halls &amp; borrow equipment.{' '}
-              <strong>Hosteller</strong> can borrow hostel items.{' '}
-              <strong>Admin</strong> manages approvals.
-            </span>
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <p className="font-semibold text-slate-800">Who should register?</p>
+            <p className="mt-2">
+              Faculty and class reps can reserve halls and equipment; hostellers can borrow items. Admins review approval requests.
+            </p>
           </div>
 
           {error && (
-            <div style={styles.errorBox}>
-              <span style={styles.errorDot}>●</span>
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -199,21 +195,15 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              ...styles.submitBtn,
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-            onMouseEnter={e => { if (!loading) (e.currentTarget.style.background = '#b0d930'); }}
-            onMouseLeave={e => { if (!loading) (e.currentTarget.style.background = '#c2ed39'); }}
+            className="inline-flex w-full items-center justify-center rounded-2xl bg-[#c2ed39] px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#b0d930] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
 
-        <p style={styles.footerText}>
+        <p className="mt-6 text-center text-sm text-slate-600">
           Already have an account?{' '}
-          <Link to="/login" style={styles.link}>
+          <Link to="/login" className="font-semibold text-slate-950 underline decoration-[#c2ed39]/70 underline-offset-4 hover:text-[#111]">
             Sign in
           </Link>
         </p>
