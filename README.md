@@ -22,5 +22,15 @@ MERN Stack Course Project
 2. Copy .env.example to .env in both /server and /client and fill in values (ask Tej for the MongoDB URI)
 3. cd server then npm install
 4. cd client then npm install
-5. Run server: cd server then node index.js
+5. Run server: cd server then npm run dev
 6. Run client: cd client then npm run dev
+
+## Demo setup
+1. After installing dependencies, run `cd server && npm run seed` to create demo users and resources
+2. Use `admin@demo.com / Admin123` for admin access
+3. Use `user@demo.com / User123` for regular user access
+
+## Demo flow
+- User: login, visit `/resources` and `/book`, then make a booking with a real resource
+- Admin: login, visit `/admin`, approve or reject pending bookings
+- User: view approved bookings at `/my-bookings`

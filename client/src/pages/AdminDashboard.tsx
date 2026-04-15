@@ -16,9 +16,14 @@ interface BookingUser {
   email: string;
 }
 
+interface ResourceInfo {
+  name: string;
+  category: string;
+}
+
 interface Booking {
   _id: string;
-  resourceName: string;
+  resourceId: ResourceInfo;
   date: string;
   timeSlot: string;
   purpose: string;
@@ -181,7 +186,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div style={styles.cardBody}>
-                  <h3 style={styles.resourceName}>{booking.resourceName}</h3>
+                  <h3 style={styles.resourceName}>{booking.resourceId?.name || 'Unknown resource'}</h3>
                   <div style={styles.metaRow}>
                     <span style={styles.metaItem}>
                       <span style={styles.metaIcon}>👤</span>

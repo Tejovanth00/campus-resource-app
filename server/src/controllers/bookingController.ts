@@ -28,6 +28,8 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
       status: 'pending',
     });
 
+    await booking.populate('resourceId', 'name category');
+
     res.status(201).json({ message: 'Booking created successfully', booking });
 
   } catch (error) {
@@ -40,11 +42,6 @@ export const getMyBookings = async (req: AuthRequest, res: Response) => {
     const bookings = await Booking.find({ userId: req.user?.userId })
       .populate('resourceId', 'name category')
       .sort({ createdAt: -1 });
-
-    if (!bookings.length) {
-      res.status(404).json({ message: 'No bookings found' });
-      return;
-    }
 
     res.status(200).json({ bookings });
 
