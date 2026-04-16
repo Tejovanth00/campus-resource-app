@@ -38,9 +38,9 @@ const MyBookings = () => {
   }, []);
 
   const getStatusColor = (status: Booking['status']) => {
-    if (status === 'approved') return 'green';
-    if (status === 'rejected') return 'red';
-    return 'orange';
+    if (status === 'approved') return 'bg-green-600';
+    if (status === 'rejected') return 'bg-red-600';
+    return 'bg-amber-600';
   };
 
   if (loading) return <p>Loading...</p>;
@@ -76,7 +76,7 @@ const MyBookings = () => {
                     <h2 className="text-xl font-semibold text-slate-900">{resourceName}</h2>
                     <p className="mt-2 text-sm text-slate-600">{typeof booking.resourceId === 'string' ? '' : booking.resourceId?.category}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusColor(booking.status)}`}>
+                  <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold text-white ${getStatusColor(booking.status)}`}>
                     {booking.status.toUpperCase()}
                   </span>
                 </div>

@@ -10,6 +10,7 @@ interface IBooking extends Document {
         purpose: string;
         approvalImageUrl: string;
         status: 'pending' | 'approved' | 'rejected';
+        returnedAt?: Date;
 }
 
 const bookingSchema = new Schema<IBooking>({
@@ -20,6 +21,7 @@ const bookingSchema = new Schema<IBooking>({
         purpose: { type: String, required: true },
         approvalImageUrl: { type: String, required: true},
         status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+        returnedAt: { type: Date, default: null },
 }, { timestamps: true });
 
 const Booking = model<IBooking>('Booking', bookingSchema);

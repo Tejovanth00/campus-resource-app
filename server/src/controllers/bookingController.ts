@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Booking from '../models/Booking';
+import Resource from '../models/Resource';
 import { AuthRequest } from '../middleware/auth';
 
 export const createBooking = async (req: AuthRequest, res: Response) => {
@@ -83,5 +84,65 @@ export const getBookingsByResource = async (req: AuthRequest, res: Response) => 
 
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const returnApprovalBasedResource = async (req: AuthRequest, res: Response) => {
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      res.status(400).json({ message: 'Booking ID is required' });
+      return;
+    }
+
+    const booking = await Booking.findById(bookingId).populate('resourceId');
+    if (!booking) {
+      res.status(404).json({ message: 'Booking not found' });
+      return;
+    }
+
+    // Check if the user owns this booking
+    const userId = req.user?.userId?.toString();
+    const bookingUserId = booking.userId.toString();
+    
+    if (bookingUserId !== userId) {
+      res.status(403).json({ message: 'You do not own this booking' });
+      return;
+    }
+
+    // Check if booking is approved
+    if (booking.status !== 'approved') {
+      res.status(400).json({ message: `Only approved bookings can be returned. Current status: ${booking.status}` });
+      return;
+    }
+
+    // Check if already returned
+    if (booking.returnedAt) {
+      res.status(400).json({ message: 'This resource has already been returned' });
+      return;
+    }
+
+    // Mark as returned
+    booking.returnedAt = new Date();
+    await booking.save();
+
+    // Update resource availability
+    await Resource.findByIdAndUpdate((booking.resourceId as any)._id, {
+      available: true,
+      checkedOutBy: null,
+      checkedOutAt: null,
+    });
+
+    // Fetch updated booking with populated data
+    const updatedBooking = await Booking.findById(bookingId)
+      .populate('resourceId', 'name category')
+      .populate('userId', 'name email');
+
+    res.status(200).json({ message: 'Resource returned successfully', booking: updatedBooking });
+
+  } catch (error) {
+    console.error('Return resource error:', error);
+    res.status(500).json({ message: 'Server error', error: (error as any).message });
   }
 };

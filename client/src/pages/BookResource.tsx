@@ -22,8 +22,10 @@ const BookResource = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const res = await api.get('/api/resources');
-        setResources(res.data);
+        const res = await api.get('/api/resources?category=approval-based');
+        // Filter to only show available resources
+        const availableResources = res.data.filter((r: ResourceOption) => r.available);
+        setResources(availableResources);
       } catch (err) {
         console.error(err);
         setError('Unable to load resources');
@@ -99,7 +101,7 @@ const BookResource = () => {
                 <option value="">Choose a resource...</option>
                 {resources.map((resource) => (
                   <option key={resource._id} value={resource._id}>
-                    {resource.name} - {resource.category} {resource.available ? '' : '(Unavailable)'}
+                    {resource.name}
                   </option>
                 ))}
               </select>
@@ -155,7 +157,7 @@ const BookResource = () => {
             {/* Image Upload */}
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                Approval Document (Optional)
+                Approval Document
               </label>
               <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-[#c2ed39] transition-colors">
                 <div className="space-y-1 text-center">
